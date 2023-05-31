@@ -1,83 +1,70 @@
-from dataclasses import dataclass
-from typing import Tuple
+from typing import Any, Tuple
 
 
 class InstructionTemplate:
     """Instruction Template
 
-    language-related field should follow ISO 639-1
+    language-related parameters must follow ISO 639-1
     """
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
+
+    @staticmethod
+    def make_instruction_response_pair(*args: Any, **kwds: Any) -> Tuple[str, str]:
         return "", ""
 
 
-@dataclass
 class VisualQuestionAnswerTemplate(InstructionTemplate):
-    question: str
-    answer: str
-    language: str
-
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
+    @staticmethod
+    def make_instruction_response_pair(
+        question: str, answer: str, language: str
+    ) -> Tuple[str, str]:
         return (
-            f"Generate answer in {self.language}: {self.question}",
-            f"{self.answer}",
+            f"Generate answer in {language}: {question}",
+            f"{answer}",
         )
 
 
-@dataclass
 class ReverseVisualQuestionAnswerTemplate(InstructionTemplate):
-    question: str
-    answer: str
-    language: str
-
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
+    @staticmethod
+    def make_instruction_response_pair(
+        question: str, answer: str, language: str
+    ) -> Tuple[str, str]:
         return (
-            f"Generate question in {self.language}: {self.answer}",
-            f"{self.question}",
+            f"Generate question in {language}: {answer}",
+            f"{question}",
         )
 
 
-@dataclass
 class ImageCaptionTemplate(InstructionTemplate):
-    caption: str
-    language: str
-
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
-        return f"Generate caption in {self.language}:", f"{self.caption}"
+    @staticmethod
+    def make_instruction_response_pair(caption: str, language: str) -> Tuple[str, str]:
+        return f"Generate caption in {language}:", f"{caption}"
 
 
-@dataclass
 class CompleteImageCaptionTemplate(InstructionTemplate):
-    head_caption: str
-    tail_caption: str
-    language: str
-
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
+    @staticmethod
+    def make_instruction_response_pair(
+        head_caption: str, tail_caption: str, language: str
+    ) -> Tuple[str, str]:
         return (
-            f"Complete caption in {self.language}: {self.head_caption}",
-            f"{self.tail_caption}",
+            f"Complete caption in {language}: {head_caption}",
+            f"{tail_caption}",
         )
 
 
-@dataclass
 class TranslateTemplate(InstructionTemplate):
-    source_text: str
-    source_language: str
-    target_text: str
-    target_language: str
-
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
+    @staticmethod
+    def make_instruction_response_pair(
+        source_text: str, source_language: str, target_text: str, target_language: str
+    ) -> Tuple[str, str]:
         return (
-            f"Translate to {self.target_language}: {self.source_language}",
-            f"{self.target_text}",
+            f"Translate to {target_language}: {source_language}",
+            f"{target_text}",
         )
 
 
-@dataclass
 class ImageTextMatchTemplate(InstructionTemplate):
-    caption: str
-    language: str
-    label: bool
-
-    def make_instruction_response_pair(self) -> Tuple[str, str]:
-        return f"Is this a pair in {self.language}: {self.caption}", f"{self.label}"
+    @staticmethod
+    def make_instruction_response_pair(
+        caption: str, language: str, label: bool
+    ) -> Tuple[str, str]:
+        return f"Is this a pair in {language}: {caption}", f"{label}"
