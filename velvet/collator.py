@@ -47,7 +47,8 @@ class TextCollator:
     def tensorize_batch_text(
         self, batch_instruction: List[str], batch_response: List[str]
     ):
-        # TODO: read InstructBLIP's source code
+        # This function is inspired by InstructBLIP
+        # However this function is more well-written
         # https://github.com/salesforce/LAVIS/blob/59273f651b9bffb193d1b12a235e909e9f826dda/lavis/models/blip2_models/blip2_vicuna_instruct.py#L115-L238
         self.tokenizer.padding_side = 'right'
         instruction_inputs = self.tokenizer(
