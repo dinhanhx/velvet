@@ -1,22 +1,28 @@
 import json
+import random
 from pathlib import Path
 
 from torch.utils.data import Dataset
 
 
 class EVJVQA(Dataset):
-    def __init__(self, root_dir: Path) -> None:
+    def __init__(self, root_dir: Path, shuffle_seed: int = None) -> None:
         """
         Parameters
         ----------
         root_dir : Path
             Directory where contain EVJVQA train-images/, lang_evjvqa_train.json
+        shuffle_seed : int | None
+            if shuffle_seed is None, don't shuffle dataset else shuffle according to seed value
         """
         self.root_dir = root_dir
         self.img_dir = root_dir.joinpath("train-images")
         self.json_file = root_dir.joinpath("lang_evjvqa_train.json")
 
         self.dataset = json.load(open(self.json_file))["annotations"]
+        if shuffle_seed is not None:
+            random.seed(shuffle_seed)
+            random.shuffle(self.dataset)
 
     def __len__(self):
         return len(self.dataset)
