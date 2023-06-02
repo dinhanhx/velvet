@@ -15,7 +15,7 @@ class MeasureTokenLength:
     template_class: Type[InstructionTemplate]
     dataset: Union[EVJVQA, Dataset]
 
-    def stat(self):
+    def make_stat(self):
         len_dataset = len(self.dataset)
         instruction_len_list = []
         response_len_list = []
@@ -34,8 +34,5 @@ class MeasureTokenLength:
             "avg": math.ceil(sum(d) / len(d)),
             "max": max(d),
         }
-        stat_dict = {
-            "instruction_len": make_stat_dict(instruction_len_list),
-            "response_len": make_stat_dict(response_len_list),
-        }
-        return stat_dict
+        self.instruction_len_stat_dict = make_stat_dict(instruction_len_list)
+        self.response_len_stat_dict = make_stat_dict(response_len_list)
