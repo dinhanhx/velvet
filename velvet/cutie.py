@@ -13,16 +13,27 @@ class Cutie(nn.Module):
     Q-former modifies BERT to behave differently on some tasks.
     """
 
-    def __init__(self, bert_config: BertConfig, max_query_length: int = 32) -> None:
+    def __init__(
+        self,
+        bert_config: BertConfig,
+        max_query_length: int = 32,
+        language_model_ignore_label: int = -100,
+    ) -> None:
         assert bert_config.is_decoder, "BERT must be a decoder"
         assert bert_config.add_cross_attention, "BERT must have cross attention layer"
         super().__init__()
-        self.bert_model = BertModel(bert_config)
+        self.bert_model = BertModel(bert_config, add_pooling_layer=False)
 
         self.query_tokens = nn.Parameter(
             torch.zeros(1, max_query_length, bert_config.hidden_size)
         )
         self.query_tokens.data.normal_(mean=0.0, std=bert_config.initializer_range)
+        self.query_attentions = torch.ones(
+            self.query_tokens.size()[:-1], dtype=torch.long
+        )
+        self.query_labels = torch.full(
+            self.query_tokens.size()[:-1], language_model_ignore_label, dtype=torch.long
+        )
 
     def forward(
         self,
@@ -33,8 +44,8 @@ class Cutie(nn.Module):
     ):
         batch_size = image_features.size(0)
 
-        query_tokens = self.query_tokens.expand(batch_size, -1, -1)
-        query_attentions = torch.ones(query_tokens.size()[:-1], dtype=torch.long)
+        query_tokens = self.query_tokens.expand(batch_size, -1, -1).to(self.query_tokens.device)
+        query_attentions = self.query_attentions.expand(batch_size, -1).to(self.query_tokens.device)
 
         cat_embeds = torch.cat([query_tokens, instruction_embeds], dim=1)
         cat_attentions = torch.cat(
