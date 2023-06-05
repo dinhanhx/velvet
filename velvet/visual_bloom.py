@@ -15,6 +15,7 @@ class VisualBloom(nn.Module):
         convnextv2_config: ConvNextV2Config,
         bert_config: BertConfig,
         bloom_config: BloomConfig,
+        bloom_name: str,
     ) -> None:
         super().__init__()
 
@@ -30,7 +31,7 @@ class VisualBloom(nn.Module):
         self.cutie_model = Cutie(bert_config)
 
         # Load and freeze BLOOM model
-        self.bloom_model = BloomForCausalLM.from_pretrained(bloom_config.name_or_path)
+        self.bloom_model = BloomForCausalLM.from_pretrained(bloom_name)
         for param in self.bloom_model.parameters():
             param.requires_grad = False
 
@@ -56,10 +57,12 @@ class VisualBloom(nn.Module):
             instruction_embeds=instruction_embeds,
             instruction_attention_mask=instruction_attention_mask,
         )
-        cutie_attentions = torch.ones(cutie_output.size()[:-1], dtype=torch.long)
-        cutie_labes = torch.full(
-            cutie_output.size()[:-1], -100, dtype=language_model_labels.dtype
-        )
+        cutie_attentions = self.cutie_model.query_attentions.expand(
+            cutie_output.size(0), -1
+        ).to(cutie_output.device)
+        cutie_labels = self.cutie_model.query_labels.expand(
+            cutie_output.size(0), -1
+        ).to(cutie_output.device)
 
         language_model_embeds = self.bloom_model.transformer.word_embeddings(
             language_model_input_ids
@@ -69,7 +72,7 @@ class VisualBloom(nn.Module):
         cat_attentions = torch.cat(
             [cutie_attentions, language_model_attention_mask], dim=1
         )
-        cat_labels = torch.cat([cutie_labes, language_model_labels], dim=1)
+        cat_labels = torch.cat([cutie_labels, language_model_labels], dim=1)
 
         bloom_outputs = self.bloom_model(
             inputs_embeds=cat_embeds, attention_mask=cat_attentions, labels=cat_labels
