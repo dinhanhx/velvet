@@ -1,13 +1,11 @@
 import math
 from dataclasses import dataclass, field
-from typing import Union
 
 from dataclass_wizard import JSONWizard
 from dataclass_wizard.enums import LetterCase
-from torch.utils.data import Dataset
 from transformers.models.bloom import BloomTokenizerFast
 
-from velvet.dataset import EVJVQA
+from velvet.dataset import UnionVelvetDataset
 
 
 @dataclass
@@ -23,7 +21,7 @@ class MeasureTokenLength(JSONWizard):
     tokenizer_name: str = ""
     dataset_class_name: str = ""
 
-    def make_stat(self, tokenizer: BloomTokenizerFast, dataset: Union[EVJVQA, Dataset]):
+    def make_stat(self, tokenizer: BloomTokenizerFast, dataset: UnionVelvetDataset):
         len_dataset = len(dataset)
         instruction_len_list = []
         response_len_list = []
