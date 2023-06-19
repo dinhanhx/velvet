@@ -77,7 +77,10 @@ class COCO(Dataset):
         Returns
         -------
         dict
-            _description_
+            {'image_id': 187496,
+            'id': 625941,
+            'caption': 'Vận động viên ngồi trên băng ghế dự bị ở bên lề trong trận đấu.',
+            'image_file': PosixPath('/mnt/storage/data/coco-2017-images/train2017/000000187496.jpg')}
         """
         data = self.dataset[index]
         image_file = self.image_split_dir.joinpath(
