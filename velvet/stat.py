@@ -1,33 +1,36 @@
 import math
-from dataclasses import dataclass
-from typing import Type, Union
+from dataclasses import dataclass, field
+from typing import Union
 
+from dataclass_wizard import JSONWizard
+from dataclass_wizard.enums import LetterCase
 from torch.utils.data import Dataset
 from transformers.models.bloom import BloomTokenizerFast
 
 from velvet.dataset import EVJVQA
-from velvet.instruction_template import InstructionTemplate
 
 
 @dataclass
-class MeasureTokenLength:
-    tokenizer: BloomTokenizerFast
-    template_class: Type[InstructionTemplate]
-    dataset: Union[EVJVQA, Dataset]
+class MeasureTokenLength(JSONWizard):
+    class _(JSONWizard.Meta):
+        # Sets the target key transform to use for serialization;
+        # defaults to `camelCase` if not specified.
+        key_transform_with_load = LetterCase.SNAKE
+        key_transform_with_dump = LetterCase.SNAKE
 
-    def make_stat(self):
-        len_dataset = len(self.dataset)
+    instruction_len_stat_dict: dict = field(default_factory=dict)
+    response_len_stat_dict: dict = field(default_factory=dict)
+    tokenizer_name: str = ""
+    dataset_class_name: str = ""
+
+    def make_stat(self, tokenizer: BloomTokenizerFast, dataset: Union[EVJVQA, Dataset]):
+        len_dataset = len(dataset)
         instruction_len_list = []
         response_len_list = []
         for i in range(len_dataset):
-            item = self.dataset[i]
-            instruction, response = self.template_class.make_instruction_response_pair(
-                question=item["question"],
-                answer=item["answer"],
-                language=item["language"],
-            )
-            instruction_len_list.append(len(self.tokenizer.encode(instruction)))
-            response_len_list.append(len(self.tokenizer.encode(response)))
+            item = dataset[i]
+            instruction_len_list.append(len(tokenizer.encode(item["_instruction_"])))
+            response_len_list.append(len(tokenizer.encode(item["_response_"])))
 
         make_stat_dict = lambda d: {  # noqa
             "min": min(d),
@@ -36,3 +39,6 @@ class MeasureTokenLength:
         }
         self.instruction_len_stat_dict = make_stat_dict(instruction_len_list)
         self.response_len_stat_dict = make_stat_dict(response_len_list)
+
+        self.tokenizer_name = tokenizer.name_or_path
+        self.dataset_class_name = dataset.__class__.__name__
