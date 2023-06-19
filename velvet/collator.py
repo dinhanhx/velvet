@@ -9,8 +9,6 @@ from transformers.models.convnext import ConvNextImageProcessor
 from transformers.models.convnextv2.modeling_convnextv2 import ConvNextV2Model
 from transformers.tokenization_utils_base import BatchEncoding
 
-from velvet.instruction_template import InstructionTemplate
-
 
 @dataclass
 class ImageFeatureCollator:
@@ -37,7 +35,6 @@ class ImageFeatureCollator:
 @dataclass
 class TextCollator:
     tokenizer: BloomTokenizerFast
-    template_class: Type[InstructionTemplate]
     max_instruction_len: int
     max_response_len: int
 
@@ -50,7 +47,7 @@ class TextCollator:
         # This function is inspired by InstructBLIP
         # However this function is more well-written
         # https://github.com/salesforce/LAVIS/blob/59273f651b9bffb193d1b12a235e909e9f826dda/lavis/models/blip2_models/blip2_vicuna_instruct.py#L115-L238
-        self.tokenizer.padding_side = 'right'
+        self.tokenizer.padding_side = "right"
         instruction_inputs = self.tokenizer(
             batch_instruction,
             return_tensors="pt",
@@ -111,7 +108,7 @@ class TextCollator:
             language_model_input_ids == self.tokenizer.pad_token_id, -100
         )
         for i in range(batch_size):
-            language_model_labels[i][:instruction_length_list[i]] = -100
+            language_model_labels[i][: instruction_length_list[i]] = -100
 
         return (
             # Inputs for Q-former
@@ -125,7 +122,7 @@ class TextCollator:
 
 
 @dataclass
-class VisualQuestionAnswerCollator(ImageFeatureCollator, TextCollator):
+class ImageTextCollator(ImageFeatureCollator, TextCollator):
     def __call__(self, batch_inputs) -> BatchEncoding:
         batch_image = []
         batch_instruction = []
@@ -133,14 +130,8 @@ class VisualQuestionAnswerCollator(ImageFeatureCollator, TextCollator):
 
         for item in batch_inputs:
             batch_image.append(Image.open(item["image_file"]))
-
-            instruction, response = self.template_class.make_instruction_response_pair(
-                question=item["question"],
-                answer=item["answer"],
-                language=item["language"],
-            )
-            batch_instruction.append(instruction)
-            batch_response.append(response)
+            batch_instruction.append(item["_instruction_"])
+            batch_response.append(item["_response_"])
 
         image_features, image_attentions = self.tensorize_batch_image(batch_image)
         (
