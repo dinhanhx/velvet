@@ -4,6 +4,7 @@ from torch.utils.data import Dataset
 
 from .cc_sbu_align import CCSBUAlign
 from .coco import COCO
+from .config_data_dir import ConfigDataDir
 from .evjvqa import EVJVQA
 from .okvqa import OKVQA
 from .textcaps import TextCaps
