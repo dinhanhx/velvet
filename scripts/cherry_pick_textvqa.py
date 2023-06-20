@@ -1,7 +1,11 @@
 import json
 from pathlib import Path
 
-root_path = Path("/mnt/storage/data/TextVQA-vi")
+import toml
+
+config_data_dir = toml.load(open("configs/data_dir.toml", "r"))
+
+root_path = Path(config_data_dir['textvqa']['metadata_root_dir'])
 en_json_path = root_path.joinpath("en/TextVQA_0.5.1_train.json")
 en_json = json.load(open(en_json_path, "r", encoding="utf-8"))
 

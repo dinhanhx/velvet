@@ -2,6 +2,10 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
+import toml
+
+config_data_dir = toml.load(open("configs/data_dir.toml", "r"))
+
 
 def create_map(en_list_path: Path, other_jsonl_path: Path):
     with open(en_list_path, "r", encoding="utf-8") as fp:
@@ -51,5 +55,5 @@ def apply_translate_textvqa(root_path: Path, iso639_1_code: str, split: str):
     return other_json_path
 
 
-print(apply_translate_textvqa(Path("/mnt/storage/data/TextVQA-vi"), "vi", "train"))
-print(apply_translate_textvqa(Path("/mnt/storage/data/TextVQA-vi"), "vi", "val"))
+print(apply_translate_textvqa(Path(config_data_dir['textvqa']['metadata_root_dir']), "vi", "train"))
+print(apply_translate_textvqa(Path(config_data_dir['textvqa']['metadata_root_dir']), "vi", "val"))
