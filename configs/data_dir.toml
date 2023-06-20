@@ -1,0 +1,25 @@
+[cc_sbu_align]
+root_dir = '/mnt/storage/data/cc_sbu_align_multilang'
+
+[coco]
+image_root_dir = '/mnt/storage/data/coco-2017-images'
+metadata_root_dir = '/mnt/storage/data/coco-2017-vi'
+
+[evjvqa]
+root_dir = '/mnt/storage/data/evjvqa'
+
+[okvqa]
+image_root_dir = '/mnt/storage/data/coco-2017-images'
+metadata_root_dir = '/mnt/storage/data/OK-VQA-multilang'
+
+[textcaps]
+image_root_dir = '/mnt/storage/data/OpenImages'
+metadata_root_dir = '/mnt/storage/data/TextCaps-vi'
+
+[textvqa]
+image_root_dir = '/mnt/storage/data/OpenImages'
+metadata_root_dir = '/mnt/storage/data/TextVQA-vi'
+
+[vqav2]
+image_root_dir = '/mnt/storage/data/coco-2017-images'
+metadata_root_dir = '/mnt/storage/data/VQAv2-vi'
