@@ -6,5 +6,6 @@ from .cc_sbu_align import CCSBUAlign
 from .coco import COCO
 from .evjvqa import EVJVQA
 from .textcaps import TextCaps
+from .textvqa import TextVQA
 
-UnionVelvetDataset = Union[Dataset, CCSBUAlign, COCO, EVJVQA, TextCaps]
+UnionVelvetDataset = Union[Dataset, CCSBUAlign, COCO, EVJVQA, TextCaps, TextVQA]
