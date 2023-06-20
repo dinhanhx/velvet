@@ -1,0 +1,2 @@
+class OKVQA:
+    pass
