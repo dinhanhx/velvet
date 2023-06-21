@@ -23,3 +23,7 @@ metadata_root_dir = '/mnt/storage/data/TextVQA-vi'
 [vqav2]
 image_root_dir = '/mnt/storage/data/coco-2017-images'
 metadata_root_dir = '/mnt/storage/data/VQAv2-vi'
+
+[gcc]
+gcc_vi_dir = '/mnt/storage/data/gcc-vi'
+llava_gcc_dir = '/mnt/storage/data/LLaVA-CC3M-Pretrain-595K'

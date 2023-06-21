@@ -45,6 +45,12 @@ class VQAv2:
 
 
 @dataclass
+class GCC:
+    gcc_vi_dir: str
+    llava_gcc_dir: str
+
+
+@dataclass
 class ConfigDataDir(JSONWizard):
     class _(JSONWizard.Meta):
         # Sets the target key transform to use for serialization;
@@ -59,3 +65,4 @@ class ConfigDataDir(JSONWizard):
     textcaps: TextCaps
     textvqa: TextVQA
     vqav2: VQAv2
+    gcc: GCC
