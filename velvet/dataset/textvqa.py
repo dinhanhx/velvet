@@ -89,6 +89,7 @@ class TextVQA(Dataset):
         for a in data["answers"]:
             if a != "":
                 none_empty_answer = a
+                break
 
         instruction, response = self.template_class.make_instruction_response_pair(
             question=data["question"],

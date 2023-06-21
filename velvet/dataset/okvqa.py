@@ -119,6 +119,7 @@ class OKVQA(Dataset):
         for a in data["answers"]:
             if a["answer"] != "":
                 none_empty_answer = a["answer"]
+                break
 
         instruction, response = self.template_class.make_instruction_response_pair(
             question=data["question"],
