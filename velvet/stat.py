@@ -20,6 +20,7 @@ class MeasureTokenLength(JSONWizard):
     response_len_stat_dict: dict = field(default_factory=dict)
     tokenizer_name: str = ""
     dataset_class_name: str = ""
+    language: str = ""
 
     def make_stat(self, tokenizer: BloomTokenizerFast, dataset: UnionVelvetDataset):
         len_dataset = len(dataset)
@@ -40,3 +41,8 @@ class MeasureTokenLength(JSONWizard):
 
         self.tokenizer_name = tokenizer.name_or_path
         self.dataset_class_name = dataset.__class__.__name__
+
+        if hasattr(dataset, 'iso639_1_code'):
+            self.language = dataset.iso639_1_code
+        else:
+            self.language = 'mixed'
