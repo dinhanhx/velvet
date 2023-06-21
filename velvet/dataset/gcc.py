@@ -26,9 +26,11 @@ class GCC(Dataset):
             Union[InstructionTemplate, ImageCaptionTemplate]
         ] = InstructionTemplate,
     ) -> None:
-        """_summary_
+        """This class GCC dataset is for a bit special Google CC3M dataset
 
-        _extended_summary_
+        It requires 2 HuggingFace repos:
+            - https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K
+            - https://huggingface.co/datasets/dinhanhx/gcc-vi
 
         Parameters
         ----------
