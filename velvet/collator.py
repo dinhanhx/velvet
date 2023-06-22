@@ -36,7 +36,7 @@ class ImageFeatureCollator:
 class TextCollator:
     tokenizer: BloomTokenizerFast
     max_instruction_len: int
-    max_response_len: int
+    max_instruction_response_len: int
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         raise NotImplementedError
@@ -54,18 +54,13 @@ class TextCollator:
             padding="max_length",
             max_length=self.max_instruction_len,
         )
-        response_inputs = self.tokenizer(
-            batch_response,
-            return_tensors="pt",
-            padding="max_length",
-            max_length=self.max_response_len,
-        )
+        response_inputs = self.tokenizer(batch_response)
 
         assert (
             len(batch_instruction)
             == len(batch_response)
             == instruction_inputs["input_ids"].size(0)
-            == response_inputs["input_ids"].size(0)
+            == len(response_inputs["input_ids"])
         ), "Something horrible just happen. All text-related batches have different size!"
         batch_size = len(batch_instruction)
 
@@ -84,7 +79,7 @@ class TextCollator:
                 torch.cat(
                     [
                         instruction_inputs["input_ids"][i][:instruction_length],
-                        response_inputs["input_ids"][i],
+                        torch.tensor(response_inputs["input_ids"][i], dtype=torch.long),
                         instruction_inputs["input_ids"][i][instruction_length:],
                     ]
                 )
@@ -94,11 +89,45 @@ class TextCollator:
                 torch.cat(
                     [
                         instruction_inputs["attention_mask"][i][:instruction_length],
-                        response_inputs["attention_mask"][i],
+                        torch.tensor(
+                            response_inputs["attention_mask"][i], dtype=torch.long
+                        ),
                         instruction_inputs["attention_mask"][i][instruction_length:],
                     ]
                 )
             )
+
+        # Pad if input_length < self.max_instruction_response_len else truncate
+        for i in range(batch_size):
+            input_length = language_model_input_ids[i].size(0)
+            if input_length == self.max_instruction_response_len:
+                continue
+            if input_length < self.max_instruction_response_len:
+                to_add_length = self.max_instruction_response_len - input_length
+                language_model_input_ids[i] = torch.cat(
+                    [
+                        language_model_input_ids[i],
+                        torch.full(
+                            (to_add_length,),
+                            self.tokenizer.pad_token_id,
+                            dtype=torch.long,
+                        ),
+                    ]
+                )
+                language_model_attention_mask[i] = torch.cat(
+                    [
+                        language_model_attention_mask[i],
+                        torch.full((to_add_length,), 0, dtype=torch.long),
+                    ]
+                )
+            if input_length > self.max_instruction_response_len:
+                language_model_input_ids[i] = language_model_input_ids[i][
+                    : self.max_instruction_response_len
+                ]
+                language_model_attention_mask[i] = language_model_attention_mask[i][
+                    : self.max_instruction_response_len
+                ]
+
         language_model_input_ids = torch.stack(language_model_input_ids)
         language_model_attention_mask = torch.stack(language_model_attention_mask)
 
