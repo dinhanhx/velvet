@@ -4,7 +4,7 @@ from transformers.models.bert import BertConfig
 from transformers.models.bloom import BloomConfig, BloomForCausalLM
 from transformers.models.convnextv2 import ConvNextV2Config
 
-from velvet.cutie import Cutie
+from velvet.model.cutie import Cutie
 
 
 class VisualBloom(nn.Module):
