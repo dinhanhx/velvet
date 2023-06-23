@@ -24,7 +24,7 @@ UnionVelvetDataset = Union[
 ]
 
 
-def create_all_dataset_list(config_data_dir_toml_file: str) -> list:
+def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) -> list:
     """Create a list of all datasets
 
     This is a kinda unstable function when comes to extensibility.
@@ -62,7 +62,7 @@ def create_all_dataset_list(config_data_dir_toml_file: str) -> list:
             "d_lang": mixed_lang,
             "d_object": EVJVQA(
                 Path(config_data_dir["evjvqa"]["root_dir"]),
-                42,
+                seed,
                 VisualQuestionAnswerTemplate,
             ),
         }
@@ -76,7 +76,7 @@ def create_all_dataset_list(config_data_dir_toml_file: str) -> list:
                 Path(config_data_dir["gcc"]["gcc_vi_dir"]),
                 Path(config_data_dir["gcc"]["llava_gcc_dir"]),
                 lang,
-                42,
+                seed,
                 ImageCaptionTemplate,
             ),
         }
@@ -89,7 +89,7 @@ def create_all_dataset_list(config_data_dir_toml_file: str) -> list:
                 Path(config_data_dir[d_key]["image_root_dir"]),
                 Path(config_data_dir[d_key]["metadata_root_dir"]),
                 lang,
-                42,
+                seed,
                 ImageCaptionTemplate,
             )
             dataset_list.append({"d_key": d_key, "d_lang": lang, "d_object": d_object})
@@ -100,7 +100,7 @@ def create_all_dataset_list(config_data_dir_toml_file: str) -> list:
                 Path(config_data_dir[d_key]["image_root_dir"]),
                 Path(config_data_dir[d_key]["metadata_root_dir"]),
                 lang,
-                42,
+                seed,
                 VisualQuestionAnswerTemplate,
             )
             dataset_list.append({"d_key": d_key, "d_lang": lang, "d_object": d_object})
