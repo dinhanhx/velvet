@@ -51,7 +51,7 @@ class GCC:
 
 
 @dataclass
-class ConfigDataDir(JSONWizard):
+class ConfigDataDirDataclass(JSONWizard):
     class _(JSONWizard.Meta):
         # Sets the target key transform to use for serialization;
         # defaults to `camelCase` if not specified.

@@ -1,10 +1,10 @@
 from typing import Union
 
-from torch.utils.data import Dataset
+from torch.utils.data import ConcatDataset, Dataset
 
 from .cc_sbu_align import CCSBUAlign
 from .coco import COCO
-from .config_data_dir import ConfigDataDir
+from .config_data_dir_dataclass import ConfigDataDirDataclass
 from .evjvqa import EVJVQA
 from .gcc import GCC
 from .okvqa import OKVQA

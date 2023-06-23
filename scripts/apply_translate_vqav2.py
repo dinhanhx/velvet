@@ -4,10 +4,10 @@ from pathlib import Path
 
 import toml
 
-from velvet.dataset import ConfigDataDir
+from velvet.dataset import ConfigDataDirDataclass
 
 config_data_dir = toml.load(open("configs/data_dir.toml", "r"))
-config_data_dir = ConfigDataDir.from_dict(config_data_dir)
+config_data_dir = ConfigDataDirDataclass.from_dict(config_data_dir)
 
 
 def create_map(en_list_path: Path, other_jsonl_path: Path):
