@@ -158,7 +158,7 @@ class ImageTextCollator(ImageFeatureCollator, TextCollator):
         batch_response = []
 
         for item in batch_inputs:
-            batch_image.append(Image.open(item["image_file"]))
+            batch_image.append(Image.open(item["image_file"]).convert('RGB'))
             batch_instruction.append(item["_instruction_"])
             batch_response.append(item["_response_"])
 
