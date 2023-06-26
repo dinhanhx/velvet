@@ -16,7 +16,7 @@ class EVJVQA(Dataset):
     def __init__(
         self,
         root_dir: Path,
-        shuffle_seed: int = None,
+        shuffle_seed: Union[int, None] = None,
         template_class: Type[
             Union[
                 InstructionTemplate,
