@@ -125,6 +125,34 @@ def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) ->
     return dataset_list
 
 
+def filter_dataset_list(dataset_list: list, filter_name: list) -> list:
+    """Remove dataset from a list
+
+    This is a kinda unstable function when comes to extensibility.
+    One is advised to read the whole function before using.
+
+    Parameters
+    ----------
+    dataset_list : list
+        the list of all datasets that is returned by `create_all_dataset_list()`
+    filter_name : list
+        List of valid dataset in toml file
+
+    Returns
+    -------
+    list
+        List of dict. Each dict contain:
+            - `d_name`: a valid dataset in toml file
+            - `d_lang`: a valid iso639-1 code
+            - `d_object`: a object of dataset class
+    """
+    new_dataset_list = []
+    for i in dataset_list:
+        if i["d_name"] not in filter_name:
+            new_dataset_list.append(i)
+    return new_dataset_list
+
+
 def order_dataset_list(
     dataset_list: list,
     order_name: Union[list, None] = None,
