@@ -1,6 +1,7 @@
 import json
 from typing import Any
 
+import click
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint, RichProgressBar
 from lightning.pytorch.loggers import TensorBoardLogger
@@ -59,10 +60,10 @@ class Wrapper(pl.LightningModule):
         return [opt], [lrs]
 
 
-if __name__ == "__main__":
-    experiment_config = json.load(
-        open("configs/experiments/easier_dataset_order.json", "r")
-    )
+@click.command()
+@click.argument("experiment_config_file")
+def main(experiment_config_file: str):
+    experiment_config = json.load(open(experiment_config_file, "r"))
 
     global_seed = 1312
     pl.seed_everything(global_seed)
@@ -153,3 +154,7 @@ if __name__ == "__main__":
     )
 
     trainer.fit(wrapper, dataloader)
+
+
+if __name__ == "__main__":
+    main()
