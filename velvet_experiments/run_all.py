@@ -17,7 +17,12 @@ from transformers.models.convnextv2.modeling_convnextv2 import (
 from transformers.optimization import get_cosine_schedule_with_warmup
 
 from velvet.collator import ImageTextCollator
-from velvet.dataset import create_all_dataset_list, order_dataset_list, pad_dataset_list
+from velvet.dataset import (
+    create_all_dataset_list,
+    filter_dataset_list,
+    order_dataset_list,
+    pad_dataset_list,
+)
 from velvet.model import VisualBloom
 
 
@@ -55,7 +60,9 @@ class Wrapper(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    experiment_config = json.load(open("configs/experiments/first_run.json", "r"))
+    experiment_config = json.load(
+        open("configs/experiments/easier_dataset_order.json", "r")
+    )
 
     global_seed = 1312
     pl.seed_everything(global_seed)
@@ -66,6 +73,10 @@ if __name__ == "__main__":
         experiment_config["dataset_config"]["order_name"],
         experiment_config["dataset_config"]["order_lang"],
     )
+    if len(experiment_config["dataset_config"]["ignore_name"]) != 0:
+        dataset_list = filter_dataset_list(
+            dataset_list, experiment_config["dataset_config"]["ignore_name"]
+        )
     if experiment_config["dataset_config"]["do_merge_lang"]:
         pass
     dataset_list = pad_dataset_list(
@@ -121,7 +132,7 @@ if __name__ == "__main__":
     trainer = pl.Trainer(
         enable_checkpointing=True,
         default_root_dir="experiment_logs",
-        accelerator="tpu",
+        accelerator=experiment_config["hardware"]["type"],
         devices=experiment_config["num_devices"],
         precision="16-mixed",
         logger=[
