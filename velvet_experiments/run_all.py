@@ -69,15 +69,15 @@ def main(experiment_config_file: str):
     pl.seed_everything(global_seed)
 
     dataset_list = create_all_dataset_list("configs/data_dir.toml", global_seed)
+    if len(experiment_config["dataset_config"]["ignore_name"]) != 0:
+        dataset_list = filter_dataset_list(
+            dataset_list, experiment_config["dataset_config"]["ignore_name"]
+        )
     dataset_list = order_dataset_list(
         dataset_list,
         experiment_config["dataset_config"]["order_name"],
         experiment_config["dataset_config"]["order_lang"],
     )
-    if len(experiment_config["dataset_config"]["ignore_name"]) != 0:
-        dataset_list = filter_dataset_list(
-            dataset_list, experiment_config["dataset_config"]["ignore_name"]
-        )
     if experiment_config["dataset_config"]["do_merge_lang"]:
         pass
     dataset_list = pad_dataset_list(
