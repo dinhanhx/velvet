@@ -1,12 +1,15 @@
 {
     "dataset_config": {
+        "ignore_name": [
+            "cc_sbu_align"
+        ],
         "order_name": [
-            "okvqa",
-            "textcaps",
-            "textvqa",
-            "coco",
-            "vqav2",
             "gcc",
+            "vqav2",
+            "coco",
+            "textvqa",
+            "textcaps",
+            "okvqa",
             "evjvqa"
         ],
         "order_lang": [
@@ -22,5 +25,9 @@
     "do_every_n_steps": 64,
     "learning_rate": 5e-5,
     "warmup_ratio": 0.2,
-    "max_epochs": 2
+    "max_epochs": 2,
+    "hardware": {
+        "type": "tpu",
+        "name": "tpu v3-8"
+    }
 }
