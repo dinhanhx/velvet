@@ -90,7 +90,10 @@ def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) ->
             "d_name": "cc_sbu_align",
             "d_lang": lang,
             "d_object": CCSBUAlign(
-                Path(config_data_dir["cc_sbu_align"]), lang, seed, ImageCaptionTemplate
+                Path(config_data_dir["cc_sbu_align"]["root_dir"]),
+                lang,
+                seed,
+                ImageCaptionTemplate,
             ),
         }
         for lang in langs
