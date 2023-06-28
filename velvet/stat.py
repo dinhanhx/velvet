@@ -23,13 +23,13 @@ class MeasureTokenLength(JSONWizard):
     language: str = ""
 
     def make_stat(self, tokenizer: BloomTokenizerFast, dataset: UnionVelvetDataset):
-        len_dataset = len(dataset)
+        len_dataset = len(dataset)  # type: ignore
         instruction_len_list = []
         response_len_list = []
         for i in range(len_dataset):
             item = dataset[i]
-            instruction_len_list.append(len(tokenizer.encode(item["_instruction_"])))
-            response_len_list.append(len(tokenizer.encode(item["_response_"])))
+            instruction_len_list.append(len(tokenizer.encode(item["_instruction_"])))  # type: ignore
+            response_len_list.append(len(tokenizer.encode(item["_response_"])))  # type: ignore
 
         make_stat_dict = lambda d: {  # noqa
             "min": min(d),
@@ -43,6 +43,6 @@ class MeasureTokenLength(JSONWizard):
         self.dataset_class_name = dataset.__class__.__name__
 
         if hasattr(dataset, 'iso639_1_code'):
-            self.language = dataset.iso639_1_code
+            self.language = dataset.iso639_1_code  # type: ignore
         else:
             self.language = 'mixed'
