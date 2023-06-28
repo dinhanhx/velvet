@@ -85,6 +85,17 @@ def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) ->
         for lang in langs
     ]
 
+    dataset_list = dataset_list + [
+        {
+            "d_name": "cc_sbu_align",
+            "d_lang": lang,
+            "d_object": CCSBUAlign(
+                Path(config_data_dir["cc_sbu_align"]), lang, seed, ImageCaptionTemplate
+            ),
+        }
+        for lang in langs
+    ]
+
     for d_name, d_class in zip(ic_dataset_names, ic_dataset_classes):
         for lang in langs:
             d_object = d_class(
@@ -94,7 +105,9 @@ def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) ->
                 seed,
                 ImageCaptionTemplate,
             )
-            dataset_list.append({"d_name": d_name, "d_lang": lang, "d_object": d_object})
+            dataset_list.append(
+                {"d_name": d_name, "d_lang": lang, "d_object": d_object}
+            )
 
     for d_name, d_class in zip(vqa_dataset_names, vqa_dataset_classes):
         for lang in langs:
@@ -105,7 +118,9 @@ def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) ->
                 seed,
                 VisualQuestionAnswerTemplate,
             )
-            dataset_list.append({"d_name": d_name, "d_lang": lang, "d_object": d_object})
+            dataset_list.append(
+                {"d_name": d_name, "d_lang": lang, "d_object": d_object}
+            )
 
     return dataset_list
 
@@ -138,7 +153,15 @@ def order_dataset_list(
             - `d_object`: a object of dataset class
     """
     if order_name is None:
-        order_name = ["okvqa", "textcaps", "textvqa", "coco", "vqav2", "gcc", "evjvqa"]  # This is very hard
+        order_name = [
+            "okvqa",
+            "textcaps",
+            "textvqa",
+            "coco",
+            "vqav2",
+            "gcc",
+            "evjvqa",
+        ]  # This is very hard
         # order_name = ["gcc", "vqav2", "coco", "textvqa", "textcaps", "okvqa", "evjvqa"]  # This is less hard
     if order_lang is None:
         order_lang = ["en", "vi", "mixed"]
