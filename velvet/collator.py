@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Type
+from typing import Any, List
 
 import torch
 from einops import rearrange
