@@ -1,1 +1,1 @@
-`python -m velvet_experiments.run_all`
+`python -m velvet_exp.run_all configs/experiments/<name>.json`
