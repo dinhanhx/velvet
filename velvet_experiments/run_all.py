@@ -3,7 +3,11 @@ from typing import Any
 
 import click
 import lightning.pytorch as pl
-from lightning.pytorch.callbacks import ModelCheckpoint, RichProgressBar
+from lightning.pytorch.callbacks import (
+    LearningRateMonitor,
+    ModelCheckpoint,
+    RichProgressBar,
+)
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torch.optim import AdamW
@@ -30,6 +34,7 @@ from velvet.model import VisualBloom
 class Wrapper(pl.LightningModule):
     def __init__(
         self,
+        experiment_config: dict,
         image_config: ConvNextV2Config,
         bert_config: BertConfig,
         bloom_config: BloomConfig,
@@ -38,8 +43,10 @@ class Wrapper(pl.LightningModule):
         warmup_ratio=0.2,
     ) -> None:
         super().__init__()
+        self.experiment_config = experiment_config
         self.learning_rate = learning_rate
         self.warmup_ratio = warmup_ratio
+        self.save_hyperparameters("experiment_config")
 
         self.visual_bloom = VisualBloom(
             image_config, bert_config, bloom_config, bloom_name
@@ -51,12 +58,18 @@ class Wrapper(pl.LightningModule):
         return loss
 
     def configure_optimizers(self) -> Any:
-        opt = AdamW(self.parameters(), self.learning_rate)
+        opt = AdamW(self.parameters(), self.learning_rate, weight_decay=0.05)
         lrs = get_cosine_schedule_with_warmup(
             opt,
             self.trainer.estimated_stepping_batches * self.warmup_ratio,
             self.trainer.estimated_stepping_batches,
         )
+        lrs = {
+            # See this docs: https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#:~:text=The%20lr_scheduler_config%20is%20a%20dictionary%20which%20contains%20the%20scheduler%20and%20its%20associated%20configuration.%20The%20default%20configuration%20is%20shown%20below.
+            "scheduler": lrs,
+            "interval": "step",
+            "frequency": 1,
+        }
         return [opt], [lrs]
 
 
@@ -123,6 +136,7 @@ def main(experiment_config_file: str):
     )
 
     wrapper = Wrapper(
+        experiment_config=experiment_config,
         image_config=image_config,
         bert_config=bert_config,
         bloom_config=bloom_config,
@@ -145,6 +159,7 @@ def main(experiment_config_file: str):
                 every_n_train_steps=experiment_config["do_every_n_steps"],
                 save_last=True,
             ),
+            LearningRateMonitor(logging_interval="step"),
         ],
         max_epochs=experiment_config["max_epochs"],
         accumulate_grad_batches=experiment_config["accumulation_step"],
