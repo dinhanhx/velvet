@@ -4,10 +4,7 @@ from pathlib import Path
 
 import toml
 
-from velvet.dataset import ConfigDataDirDataclass
-
 config_data_dir = toml.load(open("configs/data_dir.toml", "r"))
-config_data_dir = ConfigDataDirDataclass.from_dict(config_data_dir)
 
 
 def create_map(en_list_path: Path, other_jsonl_path: Path):
@@ -91,5 +88,7 @@ def apply_translate_okvqa(root_path: Path, iso639_1_code: str, split: str):
     return other_question_path, other_answer_path
 
 
-apply_translate_okvqa(Path(config_data_dir.okvqa.metadata_root_dir), "vi", "train")
-apply_translate_okvqa(Path(config_data_dir.okvqa.metadata_root_dir), "vi", "val")
+apply_translate_okvqa(
+    Path(config_data_dir["okvqa"]["metadata_root_dir"]), "vi", "train"
+)
+apply_translate_okvqa(Path(config_data_dir["okvqa"]["metadata_root_dir"]), "vi", "val")
