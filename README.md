@@ -4,6 +4,8 @@
 
 ## Experiments
 
+See [this pip requirements](https://gist.github.com/dinhanhx/2cf2c8b3dbf45db8d722bca5c098d3dd#pip-requirements) to setup on TPU v3-8, v4-8.
+
 `export XRT_TPU_CONFIG="localservice;0;localhost:51011"` for TPU v3-8
 
 `export PJRT_DEVICE=TPU` for TPU v4-8
