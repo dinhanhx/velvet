@@ -39,13 +39,15 @@ class Wrapper(pl.LightningModule):
         bert_config: BertConfig,
         bloom_config: BloomConfig,
         bloom_name: str = "bigscience/bloomz-560m",
-        learning_rate=5e-5,
-        warmup_ratio=0.2,
+        learning_rate: float=5e-5,
+        warmup_ratio: float=0.2,
+        use_lrs: bool=True,
     ) -> None:
         super().__init__()
         self.experiment_config = experiment_config
         self.learning_rate = learning_rate
         self.warmup_ratio = warmup_ratio
+        self.use_lrs = use_lrs
         self.save_hyperparameters("experiment_config")
 
         self.visual_bloom = VisualBloom(
@@ -59,18 +61,24 @@ class Wrapper(pl.LightningModule):
 
     def configure_optimizers(self) -> Any:
         opt = AdamW(self.parameters(), self.learning_rate, weight_decay=0.05)
-        lrs = get_cosine_schedule_with_warmup(
-            opt,
-            self.trainer.estimated_stepping_batches * self.warmup_ratio,
-            self.trainer.estimated_stepping_batches,
-        )
-        lrs = {
-            # See this docs: https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#:~:text=The%20lr_scheduler_config%20is%20a%20dictionary%20which%20contains%20the%20scheduler%20and%20its%20associated%20configuration.%20The%20default%20configuration%20is%20shown%20below.
-            "scheduler": lrs,
-            "interval": "step",
-            "frequency": 1,
-        }
-        return [opt], [lrs]
+        opt_list = [opt]
+
+        if self.use_lrs:
+            lrs = {
+                # See this docs: https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#:~:text=The%20lr_scheduler_config%20is%20a%20dictionary%20which%20contains%20the%20scheduler%20and%20its%20associated%20configuration.%20The%20default%20configuration%20is%20shown%20below.
+                "scheduler": get_cosine_schedule_with_warmup(
+                    opt,
+                    self.trainer.estimated_stepping_batches * self.warmup_ratio,  # type: ignore
+                    self.trainer.estimated_stepping_batches,  # type: ignore
+                ),
+                "interval": "step",
+                "frequency": 1,
+            }
+            lrs_list = [lrs]
+        else:
+            lrs_list = []
+
+        return opt_list, lrs_list
 
 
 @click.command()
@@ -112,8 +120,8 @@ def main(experiment_config_file: str):
     bloom_config = BloomConfig.from_pretrained("bigscience/bloomz-560m")
 
     collator = ImageTextCollator(
-        image_processor=image_processor,
-        image_model=image_model,
+        image_processor=image_processor,  # type: ignore
+        image_model=image_model,  # type: ignore
         tokenizer=tokenizer,
         max_instruction_len=61,
         max_instruction_response_len=105,
@@ -137,11 +145,12 @@ def main(experiment_config_file: str):
 
     wrapper = Wrapper(
         experiment_config=experiment_config,
-        image_config=image_config,
+        image_config=image_config,  # type: ignore
         bert_config=bert_config,
-        bloom_config=bloom_config,
+        bloom_config=bloom_config,  # type: ignore
         learning_rate=experiment_config["learning_rate"],
         warmup_ratio=experiment_config["warmup_ratio"],
+        use_lrs=experiment_config["use_learning_rate_scheduler"],
     )
 
     trainer = pl.Trainer(
