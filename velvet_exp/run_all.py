@@ -154,14 +154,15 @@ def main(experiment_config_file: str):
     )
 
     experiment_name = experiment_config["experiment_name"]
+    save_root_dir = f"{experiment_name}_logs"
     trainer = pl.Trainer(
         enable_checkpointing=True,
-        default_root_dir=f"{experiment_name}_logs",
+        default_root_dir=save_root_dir,
         accelerator=experiment_config["hardware"]["type"],
         devices=experiment_config["num_devices"],
         precision="16-mixed",
         logger=[
-            TensorBoardLogger("experiment_logs"),
+            TensorBoardLogger(save_root_dir),
         ],
         callbacks=[
             RichProgressBar(),
