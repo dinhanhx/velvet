@@ -1,0 +1,35 @@
+{
+    "experiment_name": "no_lrs",
+    "dataset_config": {
+        "ignore_name": [
+            "cc_sbu_align"
+        ],
+        "order_name": [
+            "gcc",
+            "vqav2",
+            "coco",
+            "textvqa",
+            "textcaps",
+            "okvqa",
+            "evjvqa"
+        ],
+        "order_lang": [
+            "en",
+            "vi",
+            "mixed"
+        ],
+        "do_merge_lang": false
+    },
+    "batch_size": 16,
+    "num_devices": 4,
+    "accumulation_step": 8,
+    "do_every_n_steps": 64,
+    "learning_rate": 1e-4,
+    "warmup_ratio": 0.2,
+    "use_learning_rate_scheduler": false,
+    "max_epochs": 2,
+    "hardware": {
+        "type": "tpu",
+        "name": "tpu v4-8"
+    }
+}
