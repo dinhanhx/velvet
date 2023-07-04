@@ -39,9 +39,9 @@ class Wrapper(pl.LightningModule):
         bert_config: BertConfig,
         bloom_config: BloomConfig,
         bloom_name: str = "bigscience/bloomz-560m",
-        learning_rate: float=5e-5,
-        warmup_ratio: float=0.2,
-        use_lrs: bool=True,
+        learning_rate: float = 5e-5,
+        warmup_ratio: float = 0.2,
+        use_lrs: bool = True,
     ) -> None:
         super().__init__()
         self.experiment_config = experiment_config
@@ -153,9 +153,10 @@ def main(experiment_config_file: str):
         use_lrs=experiment_config["use_learning_rate_scheduler"],
     )
 
+    experiment_name = experiment_config["experiment_name"]
     trainer = pl.Trainer(
         enable_checkpointing=True,
-        default_root_dir="experiment_logs",
+        default_root_dir=f"{experiment_name}_logs",
         accelerator=experiment_config["hardware"]["type"],
         devices=experiment_config["num_devices"],
         precision="16-mixed",
