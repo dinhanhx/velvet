@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Union
 
 import click
 import lightning.pytorch as pl
@@ -24,6 +24,7 @@ from transformers.optimization import get_cosine_schedule_with_warmup
 from velvet.collator import ImageTextCollator
 from velvet.dataset import (
     create_all_dataset_list,
+    create_validation_list,
     filter_dataset_list,
     order_dataset_list,
     pad_dataset_list,
@@ -58,6 +59,10 @@ class Wrapper(pl.LightningModule):
         loss = self.visual_bloom(**batch).loss
         self.log("train_loss", loss)
         return loss
+
+    def validation_step(self, batch) -> Union[STEP_OUTPUT, None]:
+        loss = self.visual_bloom(**batch).loss
+        self.log("val_loss", loss)
 
     def configure_optimizers(self) -> Any:
         opt = AdamW(self.parameters(), self.learning_rate, weight_decay=0.05)
@@ -110,6 +115,9 @@ def main(experiment_config_file: str):
 
     dataset = ConcatDataset([i["d_object"] for i in dataset_list])
 
+    validation_list = create_validation_list("configs/data_dir.toml", global_seed)
+    validation_dataset = ConcatDataset([i["d_object"] for i in validation_list])
+
     image_config = ConvNextV2Config.from_pretrained("facebook/convnextv2-base-22k-224")
     image_processor = ConvNextImageProcessor.from_pretrained(
         "facebook/convnextv2-base-22k-224"
@@ -129,6 +137,14 @@ def main(experiment_config_file: str):
 
     dataloader = DataLoader(
         dataset,
+        batch_size=experiment_config["batch_size"],
+        collate_fn=collator,
+        num_workers=24,
+        prefetch_factor=4,
+    )
+
+    validation_dataloader = DataLoader(
+        validation_dataset,
         batch_size=experiment_config["batch_size"],
         collate_fn=collator,
         num_workers=24,
@@ -177,9 +193,11 @@ def main(experiment_config_file: str):
         # strategy="ddp_find_unused_parameters_true",
         log_every_n_steps=experiment_config["do_every_n_steps"],
         enable_model_summary=False,
+        val_check_interval=0.1,
     )
 
-    trainer.fit(wrapper, dataloader)
+    ckpt_path: Union[str, None] = None
+    trainer.fit(wrapper, dataloader, validation_dataloader, ckpt_path=ckpt_path)
 
 
 if __name__ == "__main__":
