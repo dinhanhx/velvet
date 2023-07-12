@@ -19,6 +19,7 @@ class TextCaps(Dataset):
         template_class: Type[
             Union[InstructionTemplate, ImageCaptionTemplate]
         ] = InstructionTemplate,
+        split="train",
     ) -> None:
         """
         Parameters
@@ -33,6 +34,8 @@ class TextCaps(Dataset):
             if shuffle_seed is None, don't shuffle dataset else shuffle according to seed value, by default None
         template_class : Type[ Union[InstructionTemplate, ImageCaptionTemplate] ], optional
             Template to create instruction response pair, by default InstructionTemplate
+        split : str, optional
+            "train"ing set, or "val"idation set by default "train"
         """
         assert any(
             [iso639_1_code == i.part1 for i in iso639_1_list]
@@ -44,11 +47,11 @@ class TextCaps(Dataset):
 
         self.meta_root_dir = metadata_root_dir
         self.json_file = metadata_root_dir.joinpath(
-            f"{iso639_1_code}/TextCaps_0.1_train.json"
+            f"{iso639_1_code}/TextCaps_0.1_{split}.json"
         )
         assert (
             self.json_file.is_file()
-        ), f"{iso639_1_code}/TextCaps_0.1_train.json does not exist"
+        ), f"{iso639_1_code}/TextCaps_0.1_{split}.json does not exist"
 
         self.dataset = json.load(open(self.json_file, "r", encoding="utf-8"))["data"]
         if shuffle_seed is not None:
