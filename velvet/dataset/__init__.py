@@ -24,6 +24,43 @@ UnionVelvetDataset = Union[
 ]
 
 
+def create_validation_list(config_data_dir_toml_file: str, seed: int = 1312) -> list:
+    config_data_dir = toml.load(open(config_data_dir_toml_file, "r"))
+    validation_list = []
+    langs = ["en", "vi"]
+
+    for lang in langs:
+        validation_list.append(
+            {
+                "d_name": "textcaps",
+                "d_lang": lang,
+                "d_object": TextCaps(
+                    Path(config_data_dir["textcaps"]["image_root_dir"]),
+                    Path(config_data_dir["textcaps"]["metadata_root_dir"]),
+                    lang,
+                    seed,
+                    ImageCaptionTemplate,
+                    "val",
+                ),
+            }
+        )
+        validation_list.append(
+            {
+                "d_name": "textvqa",
+                "d_lang": lang,
+                "d_object": TextVQA(
+                    Path(config_data_dir["textvqa"]["image_root_dir"]),
+                    Path(config_data_dir["textvqa"]["metadata_root_dir"]),
+                    lang,
+                    seed,
+                    VisualQuestionAnswerTemplate,
+                    "val",
+                ),
+            }
+        )
+    return validation_list
+
+
 def create_all_dataset_list(config_data_dir_toml_file: str, seed: int = 1312) -> list:
     """Create a list of all datasets
 
