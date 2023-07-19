@@ -43,24 +43,26 @@ class Wrapper(pl.LightningModule):
         learning_rate: float = 5e-5,
         warmup_ratio: float = 0.2,
         use_lrs: bool = True,
+        warmup_steps: Union[int, None] = None,
     ) -> None:
         super().__init__()
         self.experiment_config = experiment_config
         self.learning_rate = learning_rate
         self.warmup_ratio = warmup_ratio
         self.use_lrs = use_lrs
+        self.warmup_steps = warmup_steps
         self.save_hyperparameters("experiment_config")
 
         self.visual_bloom = VisualBloom(
             image_config, bert_config, bloom_config, bloom_name
         )
 
-    def training_step(self, batch) -> STEP_OUTPUT:
+    def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
         loss = self.visual_bloom(**batch).loss
         self.log("train_loss", loss)
         return loss
 
-    def validation_step(self, batch) -> Union[STEP_OUTPUT, None]:
+    def validation_step(self, batch, batch_idx) -> Union[STEP_OUTPUT, None]:
         loss = self.visual_bloom(**batch).loss
         self.log("val_loss", loss)
 
@@ -69,11 +71,14 @@ class Wrapper(pl.LightningModule):
         opt_list = [opt]
 
         if self.use_lrs:
+            calculated_warmup_steps = (
+                self.trainer.estimated_stepping_batches * self.warmup_ratio
+            )
             lrs = {
                 # See this docs: https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#:~:text=The%20lr_scheduler_config%20is%20a%20dictionary%20which%20contains%20the%20scheduler%20and%20its%20associated%20configuration.%20The%20default%20configuration%20is%20shown%20below.
                 "scheduler": get_cosine_schedule_with_warmup(
                     opt,
-                    self.trainer.estimated_stepping_batches * self.warmup_ratio,  # type: ignore
+                    self.warmup_steps if self.warmup_steps is not None else calculated_warmup_steps,  # type: ignore
                     self.trainer.estimated_stepping_batches,  # type: ignore
                 ),
                 "interval": "step",
