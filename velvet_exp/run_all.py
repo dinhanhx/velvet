@@ -123,14 +123,14 @@ def main(experiment_config_file: str):
     validation_list = create_validation_list("configs/data_dir.toml", global_seed)
     validation_dataset = ConcatDataset([i["d_object"] for i in validation_list])
 
-    image_config = ConvNextV2Config.from_pretrained("facebook/convnextv2-base-22k-224")
-    image_processor = ConvNextImageProcessor.from_pretrained(
-        "facebook/convnextv2-base-22k-224"
-    )
-    image_model = ConvNextV2Model.from_pretrained("facebook/convnextv2-base-22k-224")
+    image_model_name = "facebook/convnextv2-base-22k-224"
+    image_config = ConvNextV2Config.from_pretrained(image_model_name)
+    image_processor = ConvNextImageProcessor.from_pretrained(image_model_name)
+    image_model = ConvNextV2Model.from_pretrained(image_model_name)
 
-    tokenizer = BloomTokenizerFast.from_pretrained("bigscience/bloomz-560m")
-    bloom_config = BloomConfig.from_pretrained("bigscience/bloomz-560m")
+    bloom_model_name = "bigscience/bloomz-560m"
+    tokenizer = BloomTokenizerFast.from_pretrained(bloom_model_name)
+    bloom_config = BloomConfig.from_pretrained(bloom_model_name)
 
     collator = ImageTextCollator(
         image_processor=image_processor,  # type: ignore
@@ -169,6 +169,7 @@ def main(experiment_config_file: str):
         image_config=image_config,  # type: ignore
         bert_config=bert_config,
         bloom_config=bloom_config,  # type: ignore
+        bloom_name=bloom_model_name
         learning_rate=experiment_config["learning_rate"],
         warmup_ratio=experiment_config["warmup_ratio"],
         use_lrs=experiment_config["use_learning_rate_scheduler"],
