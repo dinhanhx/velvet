@@ -51,6 +51,10 @@ class VisualBloom(nn.Module):
         instruction_embeds = self.bloom_model.transformer.word_embeddings(
             instruction_input_ids
         )
+        instruction_embeds = self.bloom_model.transformer.word_embeddings_layernorm(
+            instruction_embeds
+        )
+
         cutie_output = self.cutie_model(
             image_features=image_features,
             image_attentions=image_attentions,
@@ -66,6 +70,9 @@ class VisualBloom(nn.Module):
 
         language_model_embeds = self.bloom_model.transformer.word_embeddings(
             language_model_input_ids
+        )
+        language_model_embeds = self.bloom_model.transformer.word_embeddings_layernorm(
+            language_model_embeds
         )
 
         cat_embeds = torch.cat([cutie_output, language_model_embeds], dim=1)
