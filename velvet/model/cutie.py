@@ -3,6 +3,17 @@ from torch import nn
 from transformers.models.bert import BertConfig, BertModel
 
 
+class IdentityForBertEmbeddings(nn.Module):
+    """To skip all BertEmbeddings because another text embeddings provided by another model are used
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def forward(self, **bert_embeddings_args):
+        inputs_embeds = bert_embeddings_args.get("inputs_embeds", None)
+        return inputs_embeds
+
+
 class Cutie(nn.Module):
     """Cutie - Qt - Query Transformer - Q-Former
 
@@ -23,6 +34,7 @@ class Cutie(nn.Module):
         assert bert_config.add_cross_attention, "BERT must have cross attention layer"
         super().__init__()
         self.bert_model = BertModel(bert_config, add_pooling_layer=False)
+        self.bert_model.embeddings = IdentityForBertEmbeddings()
 
         self.query_tokens = nn.Parameter(
             torch.zeros(1, max_query_length, bert_config.hidden_size)
@@ -44,8 +56,12 @@ class Cutie(nn.Module):
     ):
         batch_size = image_features.size(0)
 
-        query_tokens = self.query_tokens.expand(batch_size, -1, -1).to(self.query_tokens.device)
-        query_attentions = self.query_attentions.expand(batch_size, -1).to(self.query_tokens.device)
+        query_tokens = self.query_tokens.expand(batch_size, -1, -1).to(
+            self.query_tokens.device
+        )
+        query_attentions = self.query_attentions.expand(batch_size, -1).to(
+            self.query_tokens.device
+        )
 
         cat_embeds = torch.cat([query_tokens, instruction_embeds], dim=1)
         cat_attentions = torch.cat(
