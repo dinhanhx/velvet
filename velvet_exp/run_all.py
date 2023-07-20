@@ -144,7 +144,7 @@ def main(experiment_config_file: str):
         dataset,
         batch_size=experiment_config["batch_size"],
         collate_fn=collator,
-        num_workers=24,
+        num_workers=48,
         prefetch_factor=4,
     )
 
@@ -152,7 +152,7 @@ def main(experiment_config_file: str):
         validation_dataset,
         batch_size=experiment_config["batch_size"],
         collate_fn=collator,
-        num_workers=24,
+        num_workers=48,
         prefetch_factor=4,
     )
 
@@ -203,7 +203,7 @@ def main(experiment_config_file: str):
     )
 
     ckpt_path: Union[str, None] = None
-    trainer.fit(wrapper, dataloader, validation_dataloader, ckpt_path=ckpt_path)
+    trainer.fit(wrapper, dataloader, ckpt_path=ckpt_path)
 
 
 if __name__ == "__main__":
