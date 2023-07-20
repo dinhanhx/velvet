@@ -169,7 +169,7 @@ def main(experiment_config_file: str):
         image_config=image_config,  # type: ignore
         bert_config=bert_config,
         bloom_config=bloom_config,  # type: ignore
-        bloom_name=bloom_model_name
+        bloom_name=bloom_model_name,
         learning_rate=experiment_config["learning_rate"],
         warmup_ratio=experiment_config["warmup_ratio"],
         use_lrs=experiment_config["use_learning_rate_scheduler"],
