@@ -173,6 +173,7 @@ def main(experiment_config_file: str):
         learning_rate=experiment_config["learning_rate"],
         warmup_ratio=experiment_config["warmup_ratio"],
         use_lrs=experiment_config["use_learning_rate_scheduler"],
+        warmup_steps=experiment_config.get('warmup_steps', None)
     )
 
     experiment_name = experiment_config["experiment_name"]
