@@ -123,12 +123,18 @@ def main(experiment_config_file: str):
     validation_list = create_validation_list("configs/data_dir.toml", global_seed)
     validation_dataset = ConcatDataset([i["d_object"] for i in validation_list])
 
-    image_model_name = "facebook/convnextv2-base-22k-224"
+    image_model_name = experiment_config.get("image_model_name", None)
+    if image_model_name is None:
+        image_model_name = "facebook/convnextv2-base-22k-224"
+
     image_config = ConvNextV2Config.from_pretrained(image_model_name)
     image_processor = ConvNextImageProcessor.from_pretrained(image_model_name)
     image_model = ConvNextV2Model.from_pretrained(image_model_name)
 
-    bloom_model_name = "bigscience/bloomz-560m"
+    bloom_model_name = experiment_config.get("bloom_model_name", None)
+    if bloom_model_name is None:
+        bloom_model_name = "bigscience/bloomz-560m"
+
     tokenizer = BloomTokenizerFast.from_pretrained(bloom_model_name)
     bloom_config = BloomConfig.from_pretrained(bloom_model_name)
 
@@ -173,7 +179,7 @@ def main(experiment_config_file: str):
         learning_rate=experiment_config["learning_rate"],
         warmup_ratio=experiment_config["warmup_ratio"],
         use_lrs=experiment_config["use_learning_rate_scheduler"],
-        warmup_steps=experiment_config.get('warmup_steps', None)
+        warmup_steps=experiment_config.get("warmup_steps", None),
     )
 
     experiment_name = experiment_config["experiment_name"]
