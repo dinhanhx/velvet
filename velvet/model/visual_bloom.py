@@ -1,3 +1,5 @@
+import warnings
+
 import torch
 from torch import nn
 from transformers.models.bert import BertConfig
@@ -19,14 +21,26 @@ class VisualBloom(nn.Module):
     ) -> None:
         super().__init__()
 
-        # VisualBLoom doesn't have linear layers to project a model's input to other model's space.
-        # Therefore, all models must return same embedding dimensions = 1024
-        assert (
+        if (
             convnextv2_config.hidden_sizes[-1]
             == bert_config.hidden_size
             == bloom_config.hidden_size
-            == 1024
-        ), "Something horrible just happen. All embedding dimensions must be 1024"
+        ):
+            self.use_projection = False
+            warnings.warn(
+                "All embedding dimensions are equal. No linear projection layers are created."
+            )
+        else:
+            self.use_projection = True
+            self.text_to_cutie = nn.Linear(
+                bloom_config.hidden_size, bert_config.hidden_size
+            )
+            self.image_to_cutie = nn.Linear(
+                convnextv2_config.hidden_sizes[-1], bert_config.hidden_size
+            )
+            self.cutie_to_text = nn.Linear(
+                bert_config.hidden_size, bloom_config.hidden_size
+            )
 
         self.cutie_model = Cutie(bert_config)
 
@@ -55,12 +69,20 @@ class VisualBloom(nn.Module):
             instruction_embeds
         )
 
+        if self.use_projection:
+            image_features = self.image_to_cutie(image_features)
+            instruction_embeds = self.text_to_cutie(instruction_embeds)
+
         cutie_output = self.cutie_model(
             image_features=image_features,
             image_attentions=image_attentions,
             instruction_embeds=instruction_embeds,
             instruction_attention_mask=instruction_attention_mask,
         )
+
+        if self.use_projection:
+            cutie_output = self.cutie_to_text(cutie_output)
+
         cutie_attentions = self.cutie_model.query_attentions.expand(
             cutie_output.size(0), -1
         ).to(cutie_output.device)
