@@ -24,7 +24,7 @@ from transformers.optimization import get_cosine_schedule_with_warmup
 from velvet.collator import ImageTextCollator
 from velvet.dataset import (
     create_all_dataset_list,
-    create_validation_list,
+#    create_validation_list,
     filter_dataset_list,
     order_dataset_list,
     pad_dataset_list,
@@ -120,8 +120,8 @@ def main(experiment_config_file: str):
 
     dataset = ConcatDataset([i["d_object"] for i in dataset_list])
 
-    validation_list = create_validation_list("configs/data_dir.toml", global_seed)
-    validation_dataset = ConcatDataset([i["d_object"] for i in validation_list])
+#    validation_list = create_validation_list("configs/data_dir.toml", global_seed)
+#    validation_dataset = ConcatDataset([i["d_object"] for i in validation_list])
 
     image_model_name = experiment_config.get("image_model_name", None)
     if image_model_name is None:
@@ -154,13 +154,13 @@ def main(experiment_config_file: str):
         prefetch_factor=4,
     )
 
-    validation_dataloader = DataLoader(
-        validation_dataset,
-        batch_size=experiment_config["batch_size"],
-        collate_fn=collator,
-        num_workers=48,
-        prefetch_factor=4,
-    )
+#    validation_dataloader = DataLoader(
+#        validation_dataset,
+#        batch_size=experiment_config["batch_size"],
+#        collate_fn=collator,
+#        num_workers=48,
+#        prefetch_factor=4,
+#    )
 
     bert_config = BertConfig(
         hidden_size=1024,
@@ -206,7 +206,7 @@ def main(experiment_config_file: str):
         # strategy="ddp_find_unused_parameters_true",
         log_every_n_steps=experiment_config["do_every_n_steps"],
         enable_model_summary=False,
-        val_check_interval=0.1,
+        # val_check_interval=0.1,
     )
 
     ckpt_path: Union[str, None] = None
