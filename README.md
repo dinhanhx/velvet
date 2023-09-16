@@ -1,6 +1,8 @@
 Velvet
 ======
 
+![Alt text](powered-by-wine-magic.svg)
+
 > Red velvet cake is my all-time favorite cake. It’s perfect for any holiday or celebration, and it always looks so elegant!
 
 Research supported with Cloud TPUs from Google's TPU Research Cloud (TRC)
