@@ -62,9 +62,9 @@ class Wrapper(pl.LightningModule):
         self.log("train_loss", loss)
         return loss
 
-    def validation_step(self, batch, batch_idx) -> Union[STEP_OUTPUT, None]:
-        loss = self.visual_bloom(**batch).loss
-        self.log("val_loss", loss)
+    # def validation_step(self, batch, batch_idx) -> Union[STEP_OUTPUT, None]:
+    #     loss = self.visual_bloom(**batch).loss
+    #     self.log("val_loss", loss)
 
     def configure_optimizers(self) -> Any:
         opt = AdamW(self.parameters(), self.learning_rate, weight_decay=0.05)
@@ -150,8 +150,8 @@ def main(experiment_config_file: str):
         dataset,
         batch_size=experiment_config["batch_size"],
         collate_fn=collator,
-        num_workers=48,
-        prefetch_factor=4,
+        num_workers=64,
+        prefetch_factor=2,
     )
 
 #    validation_dataloader = DataLoader(
@@ -189,7 +189,7 @@ def main(experiment_config_file: str):
         default_root_dir=save_root_dir,
         accelerator=experiment_config["hardware"]["type"],
         devices=experiment_config["num_devices"],
-        precision="16-mixed",
+        precision="bf16-mixed",
         logger=[
             TensorBoardLogger(save_root_dir),
         ],
