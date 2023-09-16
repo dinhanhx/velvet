@@ -1,7 +1,7 @@
 {
     "experiment_name": "big_model",
     "image_model_name": "facebook/convnextv2-large-22k-224",
-    "bloom_model_name": "bigscience/bloomz-1b1",
+    "bloom_model_name": "bigscience/bloomz-1b7",
     "dataset_config": {
         "ignore_name": [
             "cc_sbu_align"
@@ -22,8 +22,8 @@
         ],
         "do_merge_lang": false
     },
-    "batch_size": 16,
-    "num_devices": 4,
+    "batch_size": 8,
+    "num_devices": 8,
     "accumulation_step": 8,
     "do_every_n_steps": 128,
     "learning_rate": 1e-4,
@@ -32,6 +32,6 @@
     "max_epochs": 2,
     "hardware": {
         "type": "tpu",
-        "name": "tpu v4-8"
+        "name": "tpu v3-8"
     }
 }
