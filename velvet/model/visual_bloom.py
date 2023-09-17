@@ -107,3 +107,52 @@ class VisualBloom(nn.Module):
             inputs_embeds=cat_embeds, attention_mask=cat_attentions, labels=cat_labels
         )
         return bloom_outputs
+
+    @torch.no_grad()
+    def generate(
+        self,
+        # Image model outputs - Q-former inputs
+        image_features: torch.Tensor,
+        image_attentions: torch.Tensor,
+        # Q-former inputs
+        instruction_input_ids: torch.Tensor,
+        instruction_attention_mask: torch.Tensor,
+    ):
+        instruction_embeds = self.bloom_model.transformer.word_embeddings(
+            instruction_input_ids
+        )
+        instruction_embeds = self.bloom_model.transformer.word_embeddings_layernorm(
+            instruction_embeds
+        )
+
+        if self.use_projection:
+            image_features = self.image_to_cutie(image_features)
+            cutie_instruction_embeds = self.text_to_cutie(instruction_embeds)
+
+        cutie_output = self.cutie_model(
+            image_features=image_features,
+            image_attentions=image_attentions,
+            instruction_embeds=cutie_instruction_embeds,
+            instruction_attention_mask=instruction_attention_mask,
+        )
+
+        if self.use_projection:
+            cutie_output = self.cutie_to_text(cutie_output)
+
+        cutie_attentions = self.cutie_model.query_attentions.expand(
+            cutie_output.size(0), -1
+        ).to(cutie_output.device)
+
+        cat_embeds = torch.cat([cutie_output, instruction_embeds], dim=1)
+        cat_attentions = torch.cat(
+            [cutie_attentions, instruction_attention_mask], dim=1
+        )
+
+        language_output = self.bloom_model.generate(
+            inputs_embeds=cat_embeds,
+            attention_mask=cat_attentions,
+            max_length=105,
+            penalty_alpha=0.6,
+            top_k=4,
+        )
+        return language_output
