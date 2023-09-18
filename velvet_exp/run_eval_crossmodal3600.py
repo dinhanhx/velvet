@@ -1,4 +1,5 @@
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -39,9 +40,11 @@ class ImageFeatureCollator:
 
 
 if __name__ == "__main__":
-    model_dir = Path("big_model_logs/lightning_logs/version_0")
+    model_dir_str = os.environ.get("MODEL_DIR", "big_model_logs/lightning_logs/version_0")
+    model_dir = Path(model_dir_str)
 
-    root_dir = Path("/mnt/storage/data/crossmodal-3600")
+    root_dir_str = os.environ.get("CROSSMODAL_3600_DIR", "/mnt/storage/data/crossmodal-3600")
+    root_dir = Path(root_dir_str)
     image_dir = root_dir / "images"
     metadata_dir = root_dir / "captions.jsonl"
 
@@ -74,6 +77,9 @@ if __name__ == "__main__":
     )
     visual_bloom.eval()
 
+    if torch.cuda.is_available():
+        visual_bloom.to("cuda")
+
     language_list = ["vi", "en"]
     output_dict = {}
     for item in tqdm(metadata_df["image/key"].items()):
@@ -83,10 +89,22 @@ if __name__ == "__main__":
 
         image_features, image_attentions = image_feature_collator([image])
 
+        if torch.cuda.is_available():
+            image_features = image_features.to("cuda")
+            image_attentions = image_attentions.to("cuda")
+
         output_item = {}
         for language in language_list:
             instruction = f"Generate caption in {language}:"
             instruction_inputs = tokenizer([instruction], return_tensors="pt")
+
+            if torch.cuda.is_available():
+                instruction_inputs["input_ids"] = instruction_inputs["input_ids"].to(
+                    "cuda"
+                )
+                instruction_inputs["attention_mask"] = instruction_inputs[
+                    "attention_mask"
+                ].cuda("cuda")
 
             language_output = visual_bloom.generate(
                 image_features,
@@ -101,6 +119,9 @@ if __name__ == "__main__":
 
             output_item[language] = cooked_output
         output_dict[index] = output_item
+
+        if index == 2:
+            break
 
     with open(
         str(model_dir.joinpath("crossmodal3600.json")),
