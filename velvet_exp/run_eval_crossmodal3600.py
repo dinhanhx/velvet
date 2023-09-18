@@ -85,8 +85,8 @@ if __name__ == "__main__":
 
         output_item = {}
         for language in language_list:
-            response = f"Generate caption in {language}:"
-            instruction_inputs = tokenizer([response], return_tensors="pt")
+            instruction = f"Generate caption in {language}:"
+            instruction_inputs = tokenizer([instruction], return_tensors="pt")
 
             language_output = visual_bloom.generate(
                 image_features,
