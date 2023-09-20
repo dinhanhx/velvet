@@ -15,8 +15,8 @@ class ImageFeatureCollator:
     image_processor: ConvNextImageProcessor
     image_model: ConvNextV2Model
 
-    def __call__(self, *args: Any, **kwds: Any) -> Any:
-        raise NotImplementedError
+    def __call__(self, batch_image: List[Image.Image]):
+        return self.tensorize_batch_image(batch_image=batch_image)
 
     def tensorize_batch_image(self, batch_image: List[Image.Image]):
         image_inputs = self.image_processor(batch_image, return_tensors="pt")
