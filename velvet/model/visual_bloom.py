@@ -18,6 +18,7 @@ class VisualBloom(nn.Module):
         bert_config: BertConfig,
         bloom_config: BloomConfig,
         bloom_name: str,
+        use_frozen_bloom: bool = True
     ) -> None:
         super().__init__()
 
@@ -45,9 +46,12 @@ class VisualBloom(nn.Module):
         self.cutie_model = Cutie(bert_config)
 
         # Load and freeze BLOOM model
-        self.bloom_model = BloomForCausalLM.from_pretrained(bloom_name)
-        for param in self.bloom_model.parameters():
-            param.requires_grad = False
+        if use_frozen_bloom:
+            self.bloom_model = BloomForCausalLM.from_pretrained(bloom_name)
+            for param in self.bloom_model.parameters():
+                param.requires_grad = False
+        else:
+            self.bloom_model = BloomForCausalLM(bloom_config)
 
     def forward(
         self,
