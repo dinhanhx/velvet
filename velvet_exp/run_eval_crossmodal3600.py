@@ -1,12 +1,8 @@
 import json
-import os
-from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 import pandas as pd
 import torch
-from einops import rearrange
 from PIL import Image
 from tqdm import tqdm
 from transformers.models.bert import BertConfig
@@ -17,33 +13,14 @@ from transformers.models.convnextv2.modeling_convnextv2 import (
     ConvNextV2Model,
 )
 
+from velvet.collator import ImageFeatureCollator
 from velvet.model import VisualBloom
 
-
-@dataclass
-class ImageFeatureCollator:
-    image_processor: ConvNextImageProcessor
-    image_model: ConvNextV2Model
-
-    def __call__(self, batch_image: List[Image.Image]):
-        image_inputs = self.image_processor(batch_image, return_tensors="pt")
-
-        with torch.no_grad():
-            image_outputs = self.image_model(**image_inputs)
-        image_features = image_outputs["last_hidden_state"]
-
-        image_features = rearrange(image_features, "b c h w -> b h w c")
-        image_features = rearrange(image_features, "b h w c -> b (h w) c")
-
-        image_attentions = torch.ones(image_features.size()[:-1], dtype=torch.long)
-        return image_features, image_attentions
-
-
 if __name__ == "__main__":
-    model_dir_str = os.environ.get("MODEL_DIR", "big_model_logs/lightning_logs/version_0")
+    model_dir_str = "big_model_logs/lightning_logs/version_0"
     model_dir = Path(model_dir_str)
 
-    root_dir_str = os.environ.get("CROSSMODAL_3600_DIR", "/mnt/storage/data/crossmodal-3600")
+    root_dir_str = "/storage/anhvd/data/crossmodal3600"
     root_dir = Path(root_dir_str)
     image_dir = root_dir / "images"
     metadata_dir = root_dir / "captions.jsonl"
@@ -70,7 +47,11 @@ if __name__ == "__main__":
     )
 
     visual_bloom = VisualBloom(
-        image_config, bert_config, bloom_config, bloom_model_name
+        image_config,
+        bert_config,
+        bloom_config,
+        bloom_model_name,
+        use_frozen_bloom=False,
     )
     visual_bloom.load_state_dict(
         torch.load(str(model_dir.joinpath("checkpoints/visual_bloom.torch")))
@@ -119,9 +100,6 @@ if __name__ == "__main__":
 
             output_item[language] = cooked_output
         output_dict[index] = output_item
-
-        if index == 2:
-            break
 
     with open(
         str(model_dir.joinpath("crossmodal3600.json")),
