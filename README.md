@@ -41,6 +41,8 @@ See [this pip requirements](https://gist.github.com/dinhanhx/2cf2c8b3dbf45db8d72
 
 ## Data setup
 
+⚠ Please take a look at this file `configs/data_dir.toml` first
+
 Given that the folder to download data is `/mnt/storage/data/`, in this folder, run the following commands,
 ```sh
 # Make sure you have git-lfs installed (https://git-lfs.com)
