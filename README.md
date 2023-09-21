@@ -177,7 +177,7 @@ torch.save(wrapper.visual_bloom.state_dict(), "big_model_logs/lightning_logs/ver
 
 ## Demo
 
-⚠ Please make sure that you have done the extraction
+⚠ Please make sure that you have done the extraction or you have obtained [the model weight here](https://drive.google.com/file/d/1g3c9INmUyYCnYbrBTmnjrGEc56iuQ_hz/view?usp=sharing)
 
 The following code doesn't use GPU or TPU. To change the image, please look at variable `url`. To change the prompt, please read the last for loop.
 
