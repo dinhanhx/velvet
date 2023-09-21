@@ -15,6 +15,20 @@ To increase the language range with Vietnamese as our main focus, we have transl
 
 We have proposed a prompting vision language model (**this repository**) which is trained on these datasets. The model can caption images and answer questions related to images. The model is modular and has 3 components: a frozen image model (ConvNeXt V2), a frozen text model (BLOOMZ), and a Cutie model. Cutie model is meant to query useful visual information for the text model.
 
+# Citation
+
+If you use this source code or model weights or theory, please cite it as below.
+```
+@software{dinhanhx_Velvet_2023,
+	title        = {{Velvet}},
+	author       = {dinhanhx},
+	year         = 2023,
+	month        = sep,
+	url          = {https://github.com/dinhanhx/velvet},
+	license      = {MIT}
+}
+```
+
 # Results
 
 It's unfortunately not good. Our largest model achieves CIDEr of Crossmodal-3600 of 0.435 in English and 0.318 in Vietnamese. It also gets 0.3404 F1 and 0.1135 BLEU on the private test of EVJVQA.
