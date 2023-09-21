@@ -1,0 +1,14 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Velvet
+message: >-
+  If you use this source code or model weights or theory,
+  please cite it as below.
+type: software
+authors:
+  - given-names: dinhanhx
+repository-code: 'https://github.com/dinhanhx/velvet'
+license: MIT
+date-released: '2023-09-30'
