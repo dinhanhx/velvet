@@ -13,7 +13,7 @@ This contains all the code (training, data loading) for the prompting vision lan
 
 To increase the language range with Vietnamese as our main focus, we have translated 6 common English datasets for image captioning and visual question answering into Vietnamese. The 6 datasets are CC3M, COCO, VQAv2, OK-VQA, TextCaps, TextVQA. By using Google Translate, these datasets collectively contain millions of image-text pairs in each language (English and Vietnamese). These datasets are available at [huggingface.co/dinhanhx](https://huggingface.co/dinhanhx).
 
-We have proposed a prompting vision language model (**this repository**) which is trained on these datasets. The model can caption images and answer questions related to images. The model is modular and has 3 components: a frozen image model (ConvNeXt V2), a frozen text model (BLOOMZ), and a Cutie model. Cutie model is meant to query useful visual information for the text model.
+We have proposed a prompting vision language model (**this repository**) which is trained on these datasets. The model can caption images and answer questions related to images. The model is modular and has 3 components: a frozen image model (ConvNeXt V2), a frozen text model (BLOOMZ), and a Cutie model. Cutie model is meant to query useful information from visual features (by image model) for the text model.
 
 # Citation
 
